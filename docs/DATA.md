@@ -1,6 +1,6 @@
-# Nguồn dữ liệu
-- Tên dataset:
-- Link / giấy phép:
-- Số ảnh, số lớp, độ phân giải:
-- Phân bố lớp (dán chart từ notebooks/01_eda):
-- Rủi ro thiên lệch đã ghi nhận:
+# Data Sources
+- Dataset name:
+- Link / licence:
+- Number of images, number of classes, resolution:
+- Class distribution (paste chart from notebooks/01_eda):
+- Identified bias risks:

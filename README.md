@@ -1,56 +1,56 @@
 # Interior Style AI
 
-Nhận diện phong cách nội thất từ ảnh phòng bằng deep learning (PyTorch), kèm giải thích Grad-CAM.
-Dự án cuối kỳ môn Artificial Intelligence (VNUK).
+Recognise interior design styles from room photos using deep learning (PyTorch), with Grad-CAM explanations.
+Final project for the Artificial Intelligence course (VNUK).
 
-## Câu hỏi nghiên cứu
-1. Transfer learning (ResNet50/EfficientNet) cải thiện bao nhiêu so với CNN huấn luyện từ đầu?
-2. Augmentation và chất lượng ảnh ảnh hưởng thế nào đến độ chính xác?
-3. Mô hình nhầm lẫn giữa những phong cách nào và nhìn vào vùng nào của ảnh (Grad-CAM)?
+## Research Questions
+1. How much does transfer learning (ResNet50 / EfficientNet) improve over a CNN trained from scratch?
+2. How do data augmentation and image quality affect accuracy?
+3. Which styles does the model confuse, and which image regions does it rely on (Grad-CAM)?
 
-## Cài đặt
+## Setup
 ```bash
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Dữ liệu
-Đặt ảnh vào `data/raw/<ten_phong_cach>/*.jpg` (ví dụ `modern`, `scandinavian`, `industrial`).
-Dataset không commit lên git; ghi nguồn, giấy phép và link tải trong `docs/DATA.md`.
+## Data
+Place images in `data/raw/<style_name>/*.jpg` (e.g. `modern`, `scandinavian`, `industrial`).
+The dataset is not committed to Git. Record the source, licence and download link in `docs/DATA.md`.
 
-## Chạy pipeline
+## Running the Pipeline
 ```bash
-python -m src.data.clean          # loại ảnh hỏng/nhỏ/trùng -> data/interim, log: reports/cleaning_log.csv
-python -m src.data.split          # stratified 70/15/15 -> data/processed
-python -m src.baseline_rf         # baseline phụ: Random Forest + histogram màu
+python -m src.data.clean          # remove corrupt/small/duplicate images -> data/interim, log: reports/cleaning_log.csv
+python -m src.data.split          # stratified 70/15/15 split -> data/processed
+python -m src.baseline_rf         # secondary baseline: Random Forest on colour histograms
 python -m src.train --model small_cnn --epochs 30 --tag small_cnn
 python -m src.evaluate --tag small_cnn
-# Tuần 4: transfer learning
+# Week 4: transfer learning
 python -m src.train --model resnet50 --epochs 15 --freeze --class-weights --tag resnet50_frozen
 python -m src.evaluate --tag resnet50_frozen
 python -m src.gradcam --tag resnet50_frozen --image path/to/room.jpg
 ```
-Có thể chạy trên Google Colab / Kaggle nếu máy không có GPU.
+If you do not have a GPU, run the project on Google Colab or Kaggle.
 
-## Cấu trúc
+## Repository Structure
 ```
-data/        raw, interim, processed (không commit)
+data/        raw, interim, processed (not committed)
 notebooks/   EDA, preprocessing, baseline, models
 src/         data/clean.py, data/split.py, dataset.py, models.py, train.py,
              evaluate.py, gradcam.py, baseline_rf.py
 reports/     figures, cleaning_log.csv, metrics_*.json
-app/         demo (Streamlit/Gradio), tùy chọn
-docs/        DATA.md, ghi chú, báo cáo
+app/         demo (Streamlit/Gradio), optional
+docs/        DATA.md, notes, report
 ```
 
-## Thành viên và phân công
-| Thành viên | Vai trò |
+## Team Members and Responsibilities
+| Member | Role |
 |---|---|
 | ... | ... |
 
-## Kết quả (điền sau khi chạy thật)
-| Mô hình | Accuracy | Macro-F1 |
+## Results (fill in after running the experiments)
+| Model | Accuracy | Macro-F1 |
 |---|---|---|
-| Random Forest + màu | | |
+| Random Forest + colour histogram | | |
 | SmallCNN | | |
 | ResNet50 | | |
