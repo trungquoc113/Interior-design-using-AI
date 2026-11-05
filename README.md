@@ -1,12 +1,7 @@
 # Interior Style AI
 
-Nhận diện phong cách nội thất từ ảnh phòng bằng deep learning (PyTorch), kèm giải thích Grad-CAM.
-Dự án cuối kỳ môn Artificial Intelligence (VNUK).
 
-## Câu hỏi nghiên cứu
-1. Transfer learning (ResNet50/EfficientNet) cải thiện bao nhiêu so với CNN huấn luyện từ đầu?
-2. Augmentation và chất lượng ảnh ảnh hưởng thế nào đến độ chính xác?
-3. Mô hình nhầm lẫn giữa những phong cách nào và nhìn vào vùng nào của ảnh (Grad-CAM)?
+
 
 ## Cài đặt
 ```bash
@@ -43,10 +38,6 @@ app/         demo (Streamlit/Gradio), tùy chọn
 docs/        DATA.md, ghi chú, báo cáo
 ```
 
-## Thành viên và phân công
-| Thành viên | Vai trò |
-|---|---|
-| ... | ... |
 
 ## Kết quả (điền sau khi chạy thật)
 | Mô hình | Accuracy | Macro-F1 |
