@@ -1,12 +1,12 @@
 # Interior Style AI
 
+<<<<<<< HEAD
 Recognise interior design styles from interior photos (retail store interiors in the current dataset) using deep learning (PyTorch), with Grad-CAM explanations.
 Final project for the Artificial Intelligence course (VNUK).
+=======
+Recognise interior design styles from room photos using deep learning (PyTorch), with Grad-CAM explanations.
+>>>>>>> 78fe1ac1ea5f770c107b859b31b117469737fdc0
 
-## Research Questions
-1. How much does transfer learning (ResNet50 / EfficientNet) improve over a CNN trained from scratch?
-2. How do data augmentation and image quality affect accuracy?
-3. Which styles does the model confuse, and which image regions does it rely on (Grad-CAM)?
 
 ## Setup
 ```bash
