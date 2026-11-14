@@ -1,0 +1,17 @@
+{
+  "model": "resnet50",
+  "epochs": 8,
+  "lr": 0.001,
+  "batch_size": 32,
+  "dropout": 0.3,
+  "weight_decay": 0.0001,
+  "label_smoothing": 0.1,
+  "patience": 5,
+  "freeze": true,
+  "finetune_epochs": 8,
+  "finetune_lr": 0.0001,
+  "unfreeze_blocks": 1,
+  "class_weights": true,
+  "tag": "resnet50_finetuned",
+  "best_val_macro_f1": 0.8293172400771448
+}

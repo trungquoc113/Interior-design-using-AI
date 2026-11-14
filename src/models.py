@@ -40,3 +40,17 @@ def build_model(name, num_classes, freeze_backbone=False, dropout=0.3):
         for p in head.parameters():
             p.requires_grad = True
     return m
+
+
+def unfreeze_last_blocks(model, name, n=1):
+    """Unfreeze the last n blocks of the backbone for fine-tuning.
+    resnet50: layer4 (n=1), layer3+layer4 (n=2) ...; efficientnet_b0: last n entries of model.features."""
+    if name == "resnet50":
+        blocks = [model.layer4, model.layer3, model.layer2][:n]
+    elif name == "efficientnet_b0":
+        blocks = list(model.features)[-n:]
+    else:
+        return
+    for b in blocks:
+        for p in b.parameters():
+            p.requires_grad = True

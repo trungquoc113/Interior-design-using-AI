@@ -1,6 +1,6 @@
 # Interior Style AI
 
-Recognise interior design styles from room photos using deep learning (PyTorch), with Grad-CAM explanations.
+Recognise interior design styles from interior photos (retail store interiors in the current dataset) using deep learning (PyTorch), with Grad-CAM explanations.
 Final project for the Artificial Intelligence course (VNUK).
 
 ## Research Questions
@@ -21,14 +21,18 @@ The dataset is not committed to Git. Record the source, licence and download lin
 ## Running the Pipeline
 ```bash
 python -m src.data.clean          # remove corrupt/small/duplicate images -> data/interim, log: reports/cleaning_log.csv
-python -m src.data.split          # stratified 70/15/15 split -> data/processed
+python -m src.data.split_grouped  # leakage-safe split: copies of one photo stay in the same split -> data/processed
+python -m src.leakage_check       # optional: closest train image for each test image (reports/leakage_check.csv)
+python -m src.show_pairs          # optional: side-by-side figure of the closest pairs
 python -m src.baseline_rf         # secondary baseline: Random Forest on colour histograms
 python -m src.train --model small_cnn --epochs 30 --tag small_cnn
 python -m src.evaluate --tag small_cnn
-# Week 4: transfer learning
-python -m src.train --model resnet50 --epochs 15 --freeze --class-weights --tag resnet50_frozen
-python -m src.evaluate --tag resnet50_frozen
-python -m src.gradcam --tag resnet50_frozen --image path/to/room.jpg
+# Week 4: transfer learning, phase 1 = train the new head only, phase 2 = fine-tune the last block
+python -m src.train --model resnet50 --freeze --epochs 8 --finetune-epochs 8 --unfreeze-blocks 1 --class-weights --label-smoothing 0.1 --tag resnet50_finetuned
+python -m src.evaluate --tag resnet50_finetuned
+python -m src.sweep --model resnet50 --epochs 5   # optional hyperparameter search -> reports/sweep_results.csv
+python -m src.compare                              # comparison table and charts
+python -m src.gradcam --tag resnet50_finetuned --image path/to/room.jpg
 ```
 If you do not have a GPU, run the project on Google Colab or Kaggle.
 
@@ -36,7 +40,7 @@ If you do not have a GPU, run the project on Google Colab or Kaggle.
 ```
 data/        raw, interim, processed (not committed)
 notebooks/   EDA, preprocessing, baseline, models
-src/         data/clean.py, data/split.py, dataset.py, models.py, train.py,
+src/         data/clean.py, data/split.py, data/split_grouped.py, leakage_check.py, show_pairs.py, dataset.py, models.py, train.py,
              evaluate.py, gradcam.py, baseline_rf.py
 reports/     figures, cleaning_log.csv, metrics_*.json
 app/         demo (Streamlit/Gradio), optional

@@ -1,6 +1,7 @@
 """Baseline phu: Random Forest tren histogram mau HSV (khong dung deep learning).
 Chay: python -m src.baseline_rf
 """
+import json
 import numpy as np
 from PIL import Image
 from sklearn.ensemble import RandomForestClassifier
@@ -29,7 +30,10 @@ def main():
     Xte, yte = load("test", classes)
     rf = RandomForestClassifier(n_estimators=300, random_state=C.SEED, n_jobs=-1).fit(Xtr, ytr)
     p = rf.predict(Xte)
-    print({"accuracy": accuracy_score(yte, p), "macro_f1": f1_score(yte, p, average="macro")})
+    res = {"model": "random_forest", "accuracy": accuracy_score(yte, p),
+           "macro_f1": f1_score(yte, p, average="macro")}
+    print(res)
+    (C.ROOT / "reports" / "metrics_random_forest.json").write_text(json.dumps(res, indent=2))
 
 
 if __name__ == "__main__":

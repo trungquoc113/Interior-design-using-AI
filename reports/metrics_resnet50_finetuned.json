@@ -1,0 +1,32 @@
+{
+  "model": "resnet50",
+  "params_millions": 23.52,
+  "accuracy": 0.849112426035503,
+  "macro_f1": 0.8472378910076644,
+  "top2_accuracy": 0.9497041420118343,
+  "macro_auc": 0.9758622448127691,
+  "per_class_f1": {
+    "Darkmodern": 0.9353,
+    "Luxuryclassic": 0.7899,
+    "Minimal": 0.8448,
+    "Popretro": 0.8209,
+    "Woodnatural": 0.8454
+  },
+  "top_confusions": [
+    {
+      "true": "Luxuryclassic",
+      "predicted": "Woodnatural",
+      "count": 13
+    },
+    {
+      "true": "Luxuryclassic",
+      "predicted": "Minimal",
+      "count": 12
+    },
+    {
+      "true": "Popretro",
+      "predicted": "Minimal",
+      "count": 9
+    }
+  ]
+}

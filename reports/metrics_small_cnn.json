@@ -1,0 +1,32 @@
+{
+  "model": "small_cnn",
+  "params_millions": 0.39,
+  "accuracy": 0.6316568047337278,
+  "macro_f1": 0.6215229263581842,
+  "top2_accuracy": 0.8727810650887574,
+  "macro_auc": 0.9040215299261367,
+  "per_class_f1": {
+    "Darkmodern": 0.8302,
+    "Luxuryclassic": 0.4702,
+    "Minimal": 0.7177,
+    "Popretro": 0.6354,
+    "Woodnatural": 0.4541
+  },
+  "top_confusions": [
+    {
+      "true": "Woodnatural",
+      "predicted": "Luxuryclassic",
+      "count": 50
+    },
+    {
+      "true": "Minimal",
+      "predicted": "Luxuryclassic",
+      "count": 30
+    },
+    {
+      "true": "Woodnatural",
+      "predicted": "Popretro",
+      "count": 29
+    }
+  ]
+}
