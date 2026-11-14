@@ -19,10 +19,11 @@ def main():
     ck = torch.load(C.MODELS / f"{a.tag}.pt", map_location="cpu")
     model = build_model(ck["model"], len(ck["classes"]), dropout=ck["dropout"])
     model.load_state_dict(ck["state"]); model.eval()
-    layer = model.layer4[-1]
     acts, grads = {}, {}
-    layer.register_forward_hook(lambda m, i, o: acts.update(v=o))
-    layer.register_full_backward_hook(lambda m, gi, go: grads.update(v=go[0]))
+    def fwd_hook(m, i, o):
+        acts["v"] = o
+        o.register_hook(lambda g: grads.update(v=g))
+    model.layer4[-1].register_forward_hook(fwd_hook)
 
     img = Image.open(a.image).convert("RGB")
     x = get_transforms(False)(img).unsqueeze(0)
