@@ -1,0 +1,6 @@
+# Extra packages for the design (image generation) module
+diffusers
+transformers
+accelerate
+controlnet_aux
+opencv-python

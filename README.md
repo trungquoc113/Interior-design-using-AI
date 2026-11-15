@@ -1,12 +1,12 @@
 # Interior Style AI
 
-<<<<<<< HEAD
 Recognise interior design styles from interior photos (retail store interiors in the current dataset) using deep learning (PyTorch), with Grad-CAM explanations.
+Final project for the Artificial Intelligence course (VNUK).
 
-=======
-Recognise interior design styles from room photos using deep learning (PyTorch), with Grad-CAM explanations.
->>>>>>> 78fe1ac1ea5f770c107b859b31b117469737fdc0
-
+## Research Questions
+1. How much does transfer learning (ResNet50 / EfficientNet) improve over a CNN trained from scratch?
+2. How do data augmentation and image quality affect accuracy?
+3. Which styles does the model confuse, and which image regions does it rely on (Grad-CAM)?
 
 ## Setup
 ```bash
@@ -58,3 +58,13 @@ docs/        DATA.md, notes, report
 | Random Forest + colour histogram | | |
 | SmallCNN | | |
 | ResNet50 | | |
+
+## Design module (empty room to furnished room)
+Uses pretrained Stable Diffusion 1.5 + ControlNet (MLSD). No generator is trained; the style classifier is used as a secondary checker.
+```bash
+pip install -r requirements-design.txt
+# put 3-5 photos of EMPTY rooms in data/empty_rooms/
+python -m src.design.generate --n 2                 # add --low-vram if GPU memory runs out
+python -m src.design.classify_designs --tag resnet50_finetuned   # secondary check (out-of-domain)
+python -m src.design.summarize_ratings rater1.csv rater2.csv      # human ratings, main evidence
+```
