@@ -8,3 +8,8 @@ __pycache__/
 .ipynb_checkpoints/
 .venv/
 *.pyc
+outputs/lora/*
+!outputs/lora/.gitkeep
+outputs/designs/*
+!outputs/designs/.gitkeep
+constraints.txt

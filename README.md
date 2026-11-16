@@ -68,3 +68,18 @@ python -m src.design.generate --n 2                 # add --low-vram if GPU memo
 python -m src.design.classify_designs --tag resnet50_finetuned   # secondary check (out-of-domain)
 python -m src.design.summarize_ratings rater1.csv rater2.csv      # human ratings, main evidence
 ```
+
+### Web app (upload an empty room, chat the details)
+```bash
+python -m app.app                # add --low-vram if GPU memory runs out
+```
+Open http://127.0.0.1:7860. Messages in Vietnamese are translated with Helsinki-NLP/opus-mt-vi-en (CPU).
+
+### LoRA fine-tuning (the part we train ourselves)
+```bash
+python -m src.design.train_lora --max-train-steps 50        # quick test
+python -m src.design.train_lora --max-train-steps 2000      # real run, add --resolution 448 if GPU memory runs out
+python -m src.design.generate --n 2 --lora outputs/lora/style_lora --lora-scale 0.8   # compare with the run without --lora
+python -m app.app --lora outputs/lora/style_lora
+```
+Training uses data/processed/train only. Rate both conditions (outputs/designs/manifest.csv and manifest_lora.csv) and run `summarize_ratings` to compare base vs LoRA.

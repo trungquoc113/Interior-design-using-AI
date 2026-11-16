@@ -16,13 +16,14 @@ from src.models import build_model
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", required=True)
+    ap.add_argument("--manifest", default="manifest.csv")
     a = ap.parse_args()
     device = "cuda" if torch.cuda.is_available() else "cpu"
     ck = torch.load(C.MODELS / f"{a.tag}.pt", map_location=device)
     model = build_model(ck["model"], len(ck["classes"]), dropout=ck["dropout"])
     model.load_state_dict(ck["state"]); model.to(device).eval()
     tf = get_transforms(False)
-    df = pd.read_csv(C.ROOT / "outputs" / "designs" / "manifest.csv")
+    df = pd.read_csv(C.ROOT / "outputs" / "designs" / a.manifest)
     preds = []
     for p in df["image"]:
         x = tf(Image.open(p).convert("RGB")).unsqueeze(0).to(device)

@@ -15,9 +15,10 @@ def main():
     df = pd.concat([pd.read_csv(p).assign(rater=p) for p in sys.argv[1:]])
     df[COLS] = df[COLS].apply(pd.to_numeric, errors="coerce")
     df = df.dropna(subset=COLS, how="all")
-    res = df.groupby("style")[COLS].agg(["mean", "count"]).round(2)
+    df["condition"] = df["image"].str.contains("_lora").map({True: "lora", False: "base"})
+    res = df.groupby(["condition", "style"])[COLS].agg(["mean", "count"]).round(2)
     print(res)
-    print("\nOverall mean:\n", df[COLS].mean().round(2))
+    print("\nOverall mean by condition:\n", df.groupby("condition")[COLS].mean().round(2))
     res.to_csv(C.ROOT / "reports" / "design_ratings_summary.csv")
 
 
