@@ -13,3 +13,5 @@ outputs/lora/*
 outputs/designs/*
 !outputs/designs/.gitkeep
 constraints.txt
+data/furniture/*
+!data/furniture/.gitkeep

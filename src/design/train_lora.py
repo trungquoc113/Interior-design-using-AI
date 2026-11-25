@@ -1,13 +1,15 @@
-"""Train a LoRA on Stable Diffusion 1.5 from style-labelled images (folder name = style, e.g. data/processed/train/Minimal/).
+"""Train a LoRA on Stable Diffusion 1.5 from images grouped in folders (folder name = class).
 
-The base model stays frozen; only small LoRA matrices in the attention layers are trained (about a few MB).
-Caption of every image = "<style> style interior design photograph".
-Uses data/processed/train only, so validation/test images are never seen (no leakage).
-To use residential-room data later, point --data to a folder with the same layout.
+The base model stays frozen; only small LoRA matrices in the attention layers are trained (a few MB).
+Caption of every image comes from --caption ({cls} = folder name in lower case).
 
-Quick test:   python -m src.design.train_lora --max-train-steps 50
-Real run:     python -m src.design.train_lora --max-train-steps 2000
-Out of GPU memory? add --resolution 448 (or 384). Output: outputs/lora/<name>/
+Style LoRA (default caption, folder = style, e.g. data/processed/train/Minimal/):
+    python -m src.design.train_lora --max-train-steps 2000
+Furniture LoRA (folders bed/, chair/, table/ ... inside data/furniture):
+    python -m src.design.train_lora --data data/furniture --name furniture_lora --max-per-class 300 \
+        --caption "a photo of a {cls}, product photo, white background" --max-train-steps 2000
+Quick test: add --max-train-steps 50.  Out of GPU memory? add --resolution 448 (or 384).
+Output: outputs/lora/<name>/
 """
 import argparse, csv, itertools, random
 from pathlib import Path
@@ -19,16 +21,28 @@ from torchvision import transforms as T
 from tqdm import tqdm
 from src import config as C
 
+DEFAULT_CAPTION = "{cls} style interior design photograph"
+EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 
-def caption_for(cls):
-    return f"{cls.lower()} style interior design photograph"
+
+def caption_for(cls, template=DEFAULT_CAPTION):
+    return template.format(cls=cls.lower())
 
 
 class StyleImages(Dataset):
-    def __init__(self, root, size):
-        self.items = [(p, p.parent.name) for p in sorted(Path(root).rglob("*.jpg"))]
+    def __init__(self, root, size, max_per_class=0, seed=0):
+        files = [p for p in sorted(Path(root).rglob("*")) if p.suffix.lower() in EXTS]
+        by_class = {}
+        for p in files:
+            by_class.setdefault(p.parent.name, []).append(p)
+        rng = random.Random(seed)
+        self.items = []
+        for c, ps in sorted(by_class.items()):
+            if max_per_class and len(ps) > max_per_class:
+                ps = rng.sample(ps, max_per_class)
+            self.items += [(p, c) for p in ps]
         if not self.items:
-            raise SystemExit(f"No .jpg images found under {root}")
+            raise SystemExit(f"No images found under {root}")
         self.classes = sorted({c for _, c in self.items})
         self.tf = T.Compose([T.Resize(size, interpolation=T.InterpolationMode.BILINEAR), T.CenterCrop(size),
                              T.RandomHorizontalFlip(), T.ToTensor(), T.Normalize([0.5], [0.5])])
@@ -46,6 +60,9 @@ def main():
     ap.add_argument("--data", default=str(C.PROCESSED / "train"))
     ap.add_argument("--base-model", default="runwayml/stable-diffusion-v1-5")
     ap.add_argument("--name", default="style_lora")
+    ap.add_argument("--caption", default=DEFAULT_CAPTION,
+                    help='caption template, {cls} = folder name, e.g. "a photo of a {cls}, product photo, white background"')
+    ap.add_argument("--max-per-class", type=int, default=0, help="use at most N images per folder (0 = all)")
     ap.add_argument("--resolution", type=int, default=512)
     ap.add_argument("--rank", type=int, default=8)
     ap.add_argument("--lr", type=float, default=1e-4)
@@ -65,13 +82,14 @@ def main():
 
     random.seed(a.seed); torch.manual_seed(a.seed)
     dev, fp16 = "cuda", torch.float16
-    ds = StyleImages(a.data, a.resolution)
+    ds = StyleImages(a.data, a.resolution, a.max_per_class, a.seed)
     print(f"{len(ds)} images, classes: {ds.classes}")
+    print("example caption:", caption_for(ds.classes[0], a.caption))
     dl = DataLoader(ds, batch_size=a.batch_size, shuffle=True, num_workers=0, drop_last=True)
 
     tok = CLIPTokenizer.from_pretrained(a.base_model, subfolder="tokenizer")
     text_encoder = CLIPTextModel.from_pretrained(a.base_model, subfolder="text_encoder").to(dev)
-    ids = tok([caption_for(c) for c in ds.classes], padding="max_length", max_length=tok.model_max_length,
+    ids = tok([caption_for(c, a.caption) for c in ds.classes], padding="max_length", max_length=tok.model_max_length,
               truncation=True, return_tensors="pt").input_ids.to(dev)
     with torch.no_grad():
         text_emb = text_encoder(ids)[0].to(fp16)  # one embedding per class, computed once

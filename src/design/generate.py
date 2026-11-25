@@ -1,13 +1,15 @@
 """Design a furnished room from a photo of an EMPTY room.
 
 Method: Stable Diffusion 1.5 + ControlNet (MLSD, straight-line map). The line map keeps the structure of the
-room (walls, doors, windows, ceiling); the text prompt sets the interior style. No model is trained here:
-we use pretrained models and evaluate the results (see classify_designs.py and summarize_ratings.py).
+room (walls, doors, windows, ceiling); the text prompt sets the interior style. An optional LoRA can be applied.
 
 Put photos of empty rooms in data/empty_rooms/, then:
     python -m src.design.generate --n 2
     python -m src.design.generate --n 3 --low-vram        # if you run out of GPU memory
-Outputs: outputs/designs/<room>/<style>_<k>.png, outputs/designs/manifest.csv, reports/figures/design_<room>.png
+    python -m src.design.generate --lora outputs/lora/style_lora --lora-scale 0.8
+    python -m src.design.generate --lora outputs/lora/furniture_lora --no-trigger
+Outputs: outputs/designs/<room>/<style>_<k>.png (folder gets the suffix _lora with --lora),
+         outputs/designs/manifest.csv (manifest_lora.csv with --lora), reports/figures/design_<room>.png
 """
 import argparse, csv
 from pathlib import Path
@@ -80,6 +82,7 @@ def main():
     ap.add_argument("--low-vram", action="store_true")
     ap.add_argument("--lora", default=None, help="folder with trained LoRA weights, e.g. outputs/lora/style_lora")
     ap.add_argument("--lora-scale", type=float, default=0.8)
+    ap.add_argument("--no-trigger", action="store_true", help="do not add the style trigger phrase (use for a furniture LoRA)")
     a = ap.parse_args()
 
     pipe = load_pipe(a.base_model, a.controlnet, a.low_vram)
@@ -101,7 +104,7 @@ def main():
         control.save(out_dir / "control_lines.png")
         firsts = {}
         for style in a.styles:
-            trigger = f"{style.lower()} style interior design photograph, " if a.lora else ""
+            trigger = f"{style.lower()} style interior design photograph, " if (a.lora and not a.no_trigger) else ""
             prompt = f"{trigger}{STYLES[style]}, {a.room_type}, interior design photography, high quality"
             for k in range(a.n):
                 seed = a.seed + k
@@ -120,7 +123,7 @@ def main():
             ax.imshow(im); ax.set_title(title, fontsize=10); ax.axis("off")
         plt.tight_layout()
         C.FIGS.mkdir(parents=True, exist_ok=True)
-        plt.savefig(C.FIGS / f"design_{room_path.stem}.png", dpi=110); plt.close(fig)
+        plt.savefig(C.FIGS / f"design_{room_path.stem}{'_lora' if a.lora else ''}.png", dpi=110); plt.close(fig)
 
     manifest = out_root / ("manifest_lora.csv" if a.lora else "manifest.csv")
     new = not manifest.exists()

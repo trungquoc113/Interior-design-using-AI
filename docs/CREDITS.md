@@ -5,6 +5,8 @@ Everything below was created by others and is used with attribution. Re-check ea
 ## Data
 - **Interior Style Classification** (Roboflow Universe, workspace `roboflowworkplace`), CC BY 4.0. Retail-store interior photos, 5 style classes.
   https://universe.roboflow.com/roboflowworkplace/interior-style-classification
+- **Amazon Berkeley Objects (ABO)**, furniture product photos (only if the furniture LoRA is trained). Sources disagree on the licence (CC BY-NC 4.0 in the paper, CC BY 4.0 on the current download page): check the official page and keep to the stricter, non-commercial use.
+  https://amazon-berkeley-objects.s3.amazonaws.com/index.html
 
 ## Pretrained models (not trained by us)
 - **Stable Diffusion 1.5** (base image generator). Licence: check the model page you downloaded it from (CreativeML Open RAIL-M family).
@@ -16,7 +18,7 @@ Everything below was created by others and is used with attribution. Re-check ea
 ## What the team built
 - Data pipeline: cleaning, near-duplicate grouping (pHash), leakage-safe grouped split.
 - Style classifier: Small CNN baseline, Random Forest baseline, ResNet50 two-phase fine-tuning, evaluation, Grad-CAM.
-- Design pipeline: ControlNet + Stable Diffusion 1.5 for empty-room design, optional LoRA we train, Gradio web app with Vietnamese chat.
+- Design pipeline: ControlNet + Stable Diffusion 1.5 for empty-room design, optional LoRA we train, Gradio web app.
 - Evaluation: human ratings of generated designs, classifier-based check.
 
 ## Use of AI assistance
